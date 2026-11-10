@@ -3,8 +3,8 @@ import { MongoClient } from 'mongodb';
 
 const port = Number(process.env.PORT || 10000);
 const mongoUri = process.env.MONGODB_URI;
-const openAiApiKey = process.env.OPENAI_API_KEY;
-const openAiModel = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+const geminiApiKey = process.env.GEMINI_API_KEY;
+const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
 const allowedOrigins = new Set((process.env.ALLOWED_ORIGINS || 'https://endsem-compass.onrender.com,http://127.0.0.1:4173,http://localhost:4173').split(',').map(value => value.trim()).filter(Boolean));
 const requestsByIp = new Map();
 let clientPromise;
@@ -85,15 +85,22 @@ function rateLimited(request) {
   recent.push(now); requestsByIp.set(ip, recent); return false;
 }
 function outputText(result) {
-  if (typeof result.output_text === 'string' && result.output_text.trim()) return result.output_text.trim();
-  return (result.output || []).flatMap(item => item.content || []).filter(item => item.type === 'output_text').map(item => item.text).join('\n').trim();
+  return (result.candidates?.[0]?.content?.parts || []).map(part => part.text || '').join('\n').trim();
 }
 async function askTutor({subject, topic, messages}) {
-  if (!openAiApiKey) throw Object.assign(new Error('AI is not configured yet. Add OPENAI_API_KEY in Render, then try again.'), {status: 503});
+  if (!geminiApiKey) throw Object.assign(new Error('AI is not configured yet. Add GEMINI_API_KEY in Render, then try again.'), {status: 503});
   const instructions = `You are Endsem Compass, a supportive and precise study tutor. Help the student learn the specific topic below. Give concise, well-structured answers for end-semester revision. When helpful, include one short example, recall cue, or practice question. Do not claim to have access to notes that were not supplied.\n\nSubject: ${subject}\nTopic: ${topic.name}\nTopic marks: ${topic.marks}\nNotes available: ${topic.notesAvailable ? 'yes' : 'no'}\nStudy status: ${topic.completed ? 'completed' : 'not yet completed'}.`;
-  const upstream = await fetch('https://api.openai.com/v1/responses', {method: 'POST', headers: {'Content-Type': 'application/json', Authorization: `Bearer ${openAiApiKey}`}, body: JSON.stringify({model: openAiModel, instructions, input: messages.map(message => ({role: message.role, content: message.content})), max_output_tokens: 550})});
+  const upstream = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(geminiModel)}:generateContent`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'x-goog-api-key': geminiApiKey},
+    body: JSON.stringify({
+      systemInstruction: {parts: [{text: instructions}]},
+      contents: messages.map(message => ({role: message.role === 'assistant' ? 'model' : 'user', parts: [{text: message.content}]})),
+      generationConfig: {maxOutputTokens: 550, temperature: 0.4}
+    })
+  });
   const result = await upstream.json().catch(() => ({}));
-  if (!upstream.ok) { console.error('OpenAI response failed:', upstream.status); throw Object.assign(new Error('The AI tutor is temporarily unavailable. Please try again.'), {status: 502}); }
+  if (!upstream.ok) { console.error('Gemini response failed:', upstream.status, result.error?.message || ''); throw Object.assign(new Error('The AI tutor is temporarily unavailable. Please try again.'), {status: 502}); }
   const answer = outputText(result);
   if (!answer) throw Object.assign(new Error('The AI tutor returned no text. Please try again.'), {status: 502});
   return answer;

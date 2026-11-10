@@ -11,7 +11,7 @@ Open `index.html` in a browser, or use any static file server. Data is stored lo
 Each topic has an **Ask AI** button. Conversations are saved separately per topic in MongoDB Atlas. The API service expects these Render environment variables:
 
 - `MONGODB_URI` — Atlas connection string
-- `OPENAI_API_KEY` — OpenAI API key
+- `GEMINI_API_KEY` — Google Gemini API key (the Gemini 2.5 Flash-Lite free tier is the default model)
 - `ALLOWED_ORIGINS` — `https://endsem-compass.onrender.com`
 
 Never place either secret in browser code or commit it to the repository.
