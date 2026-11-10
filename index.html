@@ -96,6 +96,23 @@
       </form>
     </dialog>
 
+    <dialog id="aiModal" class="modal ai-modal">
+      <section class="ai-dialog">
+        <div class="modal-heading ai-heading">
+          <div><p class="eyebrow">YOUR TOPIC TUTOR</p><h2 id="chatTopicTitle">Study with AI</h2><p id="chatContext" class="chat-context"></p></div>
+          <button class="close-button" id="closeAiModal" aria-label="Close">×</button>
+        </div>
+        <div id="chatMessages" class="chat-messages" aria-live="polite"></div>
+        <p id="chatStatus" class="chat-status" role="status"></p>
+        <form id="chatForm" class="chat-form">
+          <label class="sr-only" for="chatInput">Ask about this topic</label>
+          <textarea id="chatInput" maxlength="2000" rows="3" placeholder="Ask for an explanation, example, quiz, or revision plan…" required></textarea>
+          <button id="sendChat" class="primary-button" type="submit">Send</button>
+        </form>
+        <p class="chat-privacy">Chats are saved separately for each topic in your study database.</p>
+      </section>
+    </dialog>
+
     <div id="toast" class="toast" role="status"></div>
     <script src="app.js"></script>
   </body>
