@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="description" content="A personal end-semester study planner." />
+    <title>Endsem Compass</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Endsem Compass home">
+          <span class="brand-mark">✦</span>
+          <span>Endsem <em>Compass</em></span>
+        </a>
+        <div class="topbar-actions">
+          <button class="icon-button" id="exportButton" title="Export study data" aria-label="Export study data">⇩</button>
+          <label class="icon-button import-label" title="Import study data" aria-label="Import study data">⇧<input id="importInput" type="file" accept="application/json" /></label>
+          <button class="profile-button" id="themeButton" title="Switch theme" aria-label="Switch theme">◐</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <p class="eyebrow">YOUR ENDSEM DASHBOARD</p>
+            <h1>Make every study session<br /><span>count.</span></h1>
+            <p class="hero-copy">Keep every subject, topic and mark target in one calm, clear place.</p>
+          </div>
+          <button class="primary-button" id="openTopicModal">+ Add a topic</button>
+        </section>
+
+        <section class="stats-grid" aria-label="Study progress summary">
+          <article class="stat-card accent-violet"><span class="stat-label">TOTAL TOPICS</span><strong id="totalTopics">0</strong><span class="stat-note" id="totalTopicsNote">Start building your plan</span></article>
+          <article class="stat-card accent-blue"><span class="stat-label">COMPLETED</span><strong id="completedTopics">0</strong><span class="stat-note" id="completionNote">0% of your syllabus</span></article>
+          <article class="stat-card accent-orange"><span class="stat-label">MARKS COVERED</span><strong id="marksCovered">0</strong><span class="stat-note" id="marksNote">out of 0 marks</span></article>
+          <article class="stat-card accent-green"><span class="stat-label">NOTES READY</span><strong id="notesReady">0</strong><span class="stat-note" id="notesNote">0 topics need notes</span></article>
+        </section>
+
+        <section class="dashboard-grid">
+          <section class="panel progress-panel">
+            <div class="panel-heading"><div><p class="eyebrow">AT A GLANCE</p><h2>Overall progress</h2></div><span class="progress-percent" id="progressPercent">0%</span></div>
+            <div class="progress-track"><div class="progress-fill" id="overallProgressBar"></div></div>
+            <div class="progress-legend"><span><i class="dot completed-dot"></i>Completed <b id="legendComplete">0</b></span><span><i class="dot remaining-dot"></i>Remaining <b id="legendRemaining">0</b></span></div>
+            <div class="next-up"><div class="next-icon">↗</div><div><span class="stat-label">NEXT UP</span><p id="nextUpText">Add your first topic to get started.</p></div></div>
+          </section>
+
+          <section class="panel target-panel">
+            <div class="panel-heading"><div><p class="eyebrow">GOAL SETTING</p><h2>Marks target</h2></div><button class="text-button" id="editTarget">Edit</button></div>
+            <div class="target-score"><span id="coveredMarkValue">0</span><small>/<span id="targetMarkValue">100</span> marks</small></div>
+            <div class="target-meter"><div id="targetBar"></div></div>
+            <p class="target-copy" id="targetCopy">Set your target and track the syllabus that supports it.</p>
+          </section>
+        </section>
+
+        <section class="subjects-section">
+          <div class="section-heading"><div><p class="eyebrow">YOUR SYLLABUS</p><h2>Subjects & topics</h2></div><button class="secondary-button" id="openSubjectModal">+ New subject</button></div>
+          <div id="subjectList" class="subject-list"></div>
+          <div id="emptyState" class="empty-state">
+            <div class="empty-orbit">✦</div><h3>Your study map starts here</h3><p>Add a subject, then break it down into topics with their marks and notes.</p><button class="primary-button" id="emptyAddSubject">Create first subject</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="subjectModal" class="modal">
+      <form method="dialog" id="subjectForm">
+        <div class="modal-heading"><div><p class="eyebrow">NEW SUBJECT</p><h2>What are you studying?</h2></div><button class="close-button" value="cancel" aria-label="Close">×</button></div>
+        <label>Subject name<input required id="subjectName" maxlength="50" placeholder="e.g. Data Structures" /></label>
+        <label>Colour<span class="colour-options" id="colourOptions"></span></label>
+        <div class="modal-actions"><button value="cancel" class="secondary-button">Cancel</button><button class="primary-button" value="default">Create subject</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="topicModal" class="modal">
+      <form method="dialog" id="topicForm">
+        <div class="modal-heading"><div><p class="eyebrow" id="topicModalKicker">NEW TOPIC</p><h2 id="topicModalTitle">Add a study topic</h2></div><button class="close-button" value="cancel" aria-label="Close">×</button></div>
+        <label>Subject<select id="topicSubject" required></select></label>
+        <label>Topic name<input required id="topicName" maxlength="80" placeholder="e.g. Binary trees" /></label>
+        <div class="field-row"><label>Marks<input required id="topicMarks" type="number" min="0" max="500" value="5" /></label><label>Status<select id="topicStatus"><option value="incomplete">To study</option><option value="complete">Completed</option></select></label></div>
+        <label class="checkbox-row"><input id="topicNotes" type="checkbox" /><span>Notes are available for this topic</span></label>
+        <div class="modal-actions"><button value="cancel" class="secondary-button">Cancel</button><button class="primary-button" id="saveTopicButton" value="default">Add topic</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="targetModal" class="modal small-modal">
+      <form method="dialog" id="targetForm">
+        <div class="modal-heading"><div><p class="eyebrow">MARKS TARGET</p><h2>Set your goal</h2></div><button class="close-button" value="cancel" aria-label="Close">×</button></div>
+        <label>Target marks<input id="targetInput" required type="number" min="1" max="1000" value="100" /></label>
+        <div class="modal-actions"><button value="cancel" class="secondary-button">Cancel</button><button class="primary-button" value="default">Save target</button></div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
