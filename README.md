@@ -1,5 +1,6 @@
-# Endsem Compass https://endsem-compass.onrender.com/
+# Endsem Compass 
 
+https://endsem-compass.onrender.com/
 A simple browser-based tracker for end-semester preparation. Organise subjects and topics, assign marks, mark study progress, and record whether notes are ready.
 
 ## Run locally
